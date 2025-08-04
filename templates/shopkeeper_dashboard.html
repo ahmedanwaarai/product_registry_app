@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-header">
+                    Shopkeeper Menu
+                </div>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item"><a href="{{ url_for('main.shopkeeper_dashboard') }}">Dashboard</a></li>
+                    <li class="list-group-item"><a href="{{ url_for('main.register_product') }}">Register Product</a></li>
+                    <li class="list-group-item"><a href="{{ url_for('main.create_unified_deal') }}">Create Deal</a></li>
+                    <li class="list-group-item"><a href="{{ url_for('main.user_deals') }}">My Deals</a></li>
+                    <li class="list-group-item"><a href="{{ url_for('main.logout') }}">Logout</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="col-md-9">
+            <div class="card">
+                <div class="card-header">
+                    <h3>Shopkeeper Dashboard</h3>
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title">Welcome, {{ current_user.username }}!</h5>
+                    
+                    {% if not current_user.shopkeeper_approved %}
+                    <div class="alert alert-warning">
+                        Your shopkeeper account is pending admin approval. You cannot register products until approved.
+                    </div>
+                    {% endif %}
+                    
+                    <div class="row mt-4">
+                        <div class="col-md-6">
+                            <div class="card text-white bg-success mb-3">
+                                <div class="card-header">Registered Products</div>
+                                <div class="card-body">
+                                    <h4 class="card-title">{{ product_count }} / 25</h4>
+                                    <p class="card-text">You can register up to 25 products for free.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card text-white bg-info mb-3">
+                                <div class="card-header">Selling Privileges</div>
+                                <div class="card-body">
+                                    <h4 class="card-title">Active</h4>
+                                    <p class="card-text">You can sell products immediately.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <h5>Your Registered Products</h5>
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Product Name</th>
+                                    <th>Serial Number</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for product in products %}
+                                <tr>
+                                    <td>{{ product.name }}</td>
+                                    <td>{{ product.serial_number }}</td>
+                                    <td>{{ product.status }}</td>
+                                    <td>
+                                        <a href="{{ url_for('main.product_history', product_id=product.id) }}" class="btn btn-sm btn-info">History</a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

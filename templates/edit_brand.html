@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h2><i class="fas fa-edit"></i> Edit Brand</h2>
+        <p class="text-muted">Modify brand information</p>
+        <hr>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h4><i class="fas fa-copyright"></i> Brand Information</h4>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    {{ form.hidden_tag() }}
+                    
+                    <div class="mb-3">
+                        {{ form.name.label(class="form-label") }}
+                        {{ form.name(class="form-control") }}
+                        {% for error in form.name.errors %}
+                            <div class="text-danger small">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        {{ form.description.label(class="form-label") }}
+                        {{ form.description(class="form-control", rows=4) }}
+                        {% for error in form.description.errors %}
+                            <div class="text-danger small">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                    
+                    {{ form.submit(class="btn btn-success") }}
+                    <a href="{{ url_for('main.manage_brands') }}" class="btn btn-secondary">Cancel</a>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-info-circle"></i> Brand Details</h5>
+            </div>
+            <div class="card-body">
+                <p><strong>Brand ID:</strong> #{{ brand.id }}</p>
+                <p><strong>Created:</strong> {{ brand.created_at.strftime('%Y-%m-%d %H:%M') }}</p>
+                <p><strong>Associated Products:</strong> {{ brand.products|length }}</p>
+                
+                {% if brand.products %}
+                    <hr>
+                    <h6>Products using this brand:</h6>
+                    <div class="list-group list-group-flush">
+                        {% for product in brand.products[:5] %}
+                        <div class="list-group-item px-0 py-1">
+                            <small>{{ product.name }}</small>
+                        </div>
+                        {% endfor %}
+                        {% if brand.products|length > 5 %}
+                        <div class="list-group-item px-0 py-1">
+                            <small class="text-muted">... and {{ brand.products|length - 5 }} more</small>
+                        </div>
+                        {% endif %}
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

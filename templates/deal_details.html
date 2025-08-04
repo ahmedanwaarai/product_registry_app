@@ -1,0 +1,148 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h2 class="text-primary fw-bold"><i class="fas fa-handshake me-2"></i> Deal Details #{{ deal.id }}</h2>
+        <p class="text-muted mb-4">View comprehensive information for this registered deal.</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-light border-bottom">
+                <h4 class="mb-0 text-dark"><i class="fas fa-info-circle me-2"></i> Deal Information</h4>
+            </div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label text-muted">Buyer</label>
+                        <p class="fw-semibold">{{ deal.buyer.username }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label text-muted">Seller</label>
+                        <p class="fw-semibold">{{ deal.seller.username }}</p>
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label text-muted">Total Amount</label>
+                        <p class="h5 text-success fw-bold">${{ '%.2f' % deal.total_amount }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label text-muted">Status</label>
+                        <span class="badge bg-info fs-6 px-3 py-2">{{ deal.status.title() }}</span>
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label text-muted">Created Date</label>
+                        <p>{{ utc_to_pakistan(deal.created_at) }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label text-muted">Number of Items</label>
+                        <p>{{ deal.deal_items|length }} product(s)</p>
+                    </div>
+                </div>
+                {% if deal.description %}
+                <div class="mb-3">
+                    <label class="form-label text-muted">Deal Description</label>
+                    <p class="text-muted fst-italic">{{ deal.description }}</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="card shadow-sm">
+            <div class="card-header bg-light border-bottom">
+                <h4 class="mb-0 text-dark"><i class="fas fa-box me-2"></i> Products in This Deal</h4>
+            </div>
+            <div class="card-body">
+                {% if deal.deal_items %}
+                <div class="table-responsive">
+                    <table class="table table-bordered align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Product Name</th>
+                                <th>Serial Number</th>
+                                <th>Category</th>
+                                <th>Brand</th>
+                                <th>Price</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in deal.deal_items %}
+                            <tr>
+                                <td><strong>{{ item.product.name }}</strong></td>
+                                <td><code>{{ item.product.serial_number }}</code></td>
+                                <td><span class="badge bg-info">{{ item.product.category.name }}</span></td>
+                                <td><span class="badge bg-secondary">{{ item.product.brand.name }}</span></td>
+                                <td class="text-success fw-semibold">${{ '%.2f' % item.price }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-4">
+                    <i class="fas fa-box-open fa-2x text-muted mb-2"></i>
+                    <p class="text-muted">No products found in this deal</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="card shadow-sm mb-3">
+            <div class="card-header bg-light border-bottom">
+                <h5 class="mb-0"><i class="fas fa-chart-pie me-2"></i> Deal Summary</h5>
+            </div>
+            <div class="card-body">
+                <div class="text-center mb-4">
+                    <h3 class="text-primary fw-bold mb-1">${{ '%.2f' % deal.total_amount }}</h3>
+                    <p class="text-muted">Total Deal Value</p>
+                </div>
+                <div class="d-flex justify-content-between mb-2">
+                    <span class="text-muted">Deal ID:</span>
+                    <span class="fw-semibold">#{{ deal.id }}</span>
+                </div>
+                <div class="d-flex justify-content-between mb-2">
+                    <span class="text-muted">Items:</span>
+                    <span class="fw-semibold">{{ deal.deal_items|length }}</span>
+                </div>
+                <div class="d-flex justify-content-between mb-2">
+                    <span class="text-muted">Status:</span>
+                    <span class="badge bg-info px-2 py-1">{{ deal.status.title() }}</span>
+                </div>
+                <div class="d-flex justify-content-between">
+                    <span class="text-muted">Created:</span>
+                    <span class="fw-semibold">{{ utc_to_pakistan(deal.created_at).split(' ')[0] }}</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="card shadow-sm">
+            <div class="card-header bg-light border-bottom">
+                <h5 class="mb-0"><i class="fas fa-cog me-2"></i> Actions</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a href="{{ url_for('main.export_deal_pdf', deal_id=deal.id) }}" class="btn btn-outline-danger">
+                        <i class="fas fa-file-pdf"></i> Export to PDF
+                    </a>
+                    <a href="{{ url_for('main.user_deals') }}" class="btn btn-outline-primary">
+                        <i class="fas fa-list"></i> Back to My Deals
+                    </a>
+                    {% if current_user.is_admin %}
+                    <a href="{{ url_for('main.admin_deal_approval') }}" class="btn btn-outline-dark">
+                        <i class="fas fa-shield-alt"></i> Admin View
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

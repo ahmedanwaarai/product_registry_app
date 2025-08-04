@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h2><i class="fas fa-copyright"></i> Manage Brands</h2>
+        <p class="text-muted">Add, edit, and manage product brands</p>
+        <hr>
+    </div>
+</div>
+
+<!-- Add New Brand Form -->
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h4><i class="fas fa-plus"></i> Add New Brand</h4>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    {{ form.hidden_tag() }}
+                    <div class="mb-3">
+                        {{ form.name.label(class="form-label") }}
+                        {{ form.name(class="form-control") }}
+                        {% for error in form.name.errors %}
+                            <div class="text-danger small">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                    <div class="mb-3">
+                        {{ form.description.label(class="form-label") }}
+                        {{ form.description(class="form-control", rows=3) }}
+                        {% for error in form.description.errors %}
+                            <div class="text-danger small">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                    {{ form.submit(class="btn btn-success") }}
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h4><i class="fas fa-info-circle"></i> Brand Management</h4>
+            </div>
+            <div class="card-body">
+                <p><strong>Total Brands:</strong> {{ brands|length }}</p>
+                <p class="text-muted">Use the table below to view, edit, or delete existing brands. Note that brands with associated products cannot be deleted.</p>
+                <div class="alert alert-info" role="alert">
+                    <i class="fas fa-lightbulb"></i> <strong>Tip:</strong> Organize your brands by manufacturer or product type for better inventory management.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Existing Brands Table -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h4><i class="fas fa-list"></i> Existing Brands</h4>
+                <span class="badge bg-primary">{{ brands|length }} brands</span>
+            </div>
+            <div class="card-body">
+                {% if brands %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Brand Name</th>
+                                    <th>Description</th>
+                                    <th>Products</th>
+                                    <th>Created</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for brand in brands %}
+                                <tr>
+                                    <td><span class="badge bg-secondary">#{{ brand.id }}</span></td>
+                                    <td><strong>{{ brand.name }}</strong></td>
+                                    <td>{{ brand.description or 'No description' }}</td>
+                                    <td>
+                                        <span class="badge bg-info">{{ brand.products|length }} products</span>
+                                    </td>
+                                    <td>{{ brand.created_at.strftime('%Y-%m-%d') }}</td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm" role="group">
+                                            <a href="{{ url_for('main.edit_brand', brand_id=brand.id) }}" 
+                                               class="btn btn-outline-primary" title="Edit Brand">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            {% if not brand.products %}
+                                                <form method="POST" action="{{ url_for('main.delete_brand', brand_id=brand.id) }}" 
+                                                      style="display: inline;" 
+                                                      onsubmit="return confirm('Are you sure you want to delete this brand?')">
+                                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                                                    <button type="submit" class="btn btn-outline-danger" title="Delete Brand">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                </form>
+                                            {% else %}
+                                                <button class="btn btn-outline-secondary" disabled title="Cannot delete - has products">
+                                                    <i class="fas fa-lock"></i>
+                                                </button>
+                                            {% endif %}
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-copyright fa-4x text-muted mb-3"></i>
+                        <h5 class="text-muted">No brands found</h5>
+                        <p class="text-muted">Add your first brand using the form above.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

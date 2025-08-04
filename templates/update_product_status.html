@@ -1,0 +1,183 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h3><i class="fas fa-edit"></i> Update Product Status</h3>
+                <small class="text-muted">Change the availability status of your product</small>
+            </div>
+            <div class="card-body">
+                <!-- Product Information -->
+                <div class="alert alert-info">
+                    <h5><i class="fas fa-box"></i> Product Information</h5>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>Name:</strong> {{ product.name }}</p>
+                            <p><strong>Serial Number:</strong> <code>{{ product.serial_number }}</code></p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>Category:</strong> {{ product.category.name }}</p>
+                            <p><strong>Brand:</strong> {{ product.brand.name }}</p>
+                        </div>
+                    </div>
+                    <p><strong>Current Status:</strong> 
+                        {% if product.status == 'for_sale' %}
+                            <span class="badge bg-success"><i class="fas fa-unlock"></i> For Sale</span>
+                        {% elif product.status == 'locked' %}
+                            <span class="badge bg-warning"><i class="fas fa-lock"></i> Locked</span>
+                        {% elif product.status == 'stolen' %}
+                            <span class="badge bg-danger"><i class="fas fa-exclamation-triangle"></i> Stolen</span>
+                        {% endif %}
+                    </p>
+                </div>
+
+                <!-- Status Update Form -->
+                <form method="POST">
+                    {{ form.hidden_tag() }}
+                    <div class="mb-4">
+                        {{ form.status.label(class="form-label") }}
+                        {{ form.status(class="form-select") }}
+                        {% if form.status.errors %}
+                            <div class="text-danger">
+                                {% for error in form.status.errors %}
+                                    <small>{{ error }}</small>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Status Descriptions -->
+                    <div class="row mb-4">
+                        <div class="col-md-4">
+                            <div class="card border-success">
+                                <div class="card-body text-center">
+                                    <i class="fas fa-unlock fa-2x text-success mb-2"></i>
+                                    <h6 class="text-success">For Sale</h6>
+                                    <p class="small text-muted">Product is available for deals and can be found in searches</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card border-warning">
+                                <div class="card-body text-center">
+                                    <i class="fas fa-lock fa-2x text-warning mb-2"></i>
+                                    <h6 class="text-warning">Locked</h6>
+                                    <p class="small text-muted">Product is not for sale and cannot be included in deals</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card border-danger">
+                                <div class="card-body text-center">
+                                    <i class="fas fa-exclamation-triangle fa-2x text-danger mb-2"></i>
+                                    <h6 class="text-danger">Stolen</h6>
+                                    <p class="small text-muted">Product has been stolen or snatched - alerts other users</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Warning for Stolen Status -->
+                    <div class="alert alert-warning">
+                        <h6><i class="fas fa-exclamation-triangle"></i> Important Notes</h6>
+                        <ul class="mb-0">
+                            <li><strong>For Sale:</strong> Makes your product visible and available for deals</li>
+                            <li><strong>Locked:</strong> Prevents others from initiating deals with this product</li>
+                            <li><strong>Stolen:</strong> Marks the product as stolen - this will alert the community and admin</li>
+                            <li>Status changes are tracked and cannot be undone easily</li>
+                        </ul>
+                    </div>
+
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ url_for('main.user_dashboard') if not current_user.is_admin else url_for('main.admin_dashboard') }}" 
+                           class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Cancel
+                        </a>
+                        {{ form.submit(class="btn btn-primary") }}
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Action History -->
+        <div class="card mt-4">
+            <div class="card-header">
+                <h5><i class="fas fa-history"></i> Recent Status Changes</h5>
+            </div>
+            <div class="card-body">
+                {% if product.status_history %}
+                    <div class="timeline">
+                        {% for history in product.status_history[-5:] %}
+                        <div class="timeline-item">
+                            <div class="timeline-marker">
+                                {% if history.new_status == 'for_sale' %}
+                                    <i class="fas fa-unlock text-success"></i>
+                                {% elif history.new_status == 'locked' %}
+                                    <i class="fas fa-lock text-warning"></i>
+                                {% elif history.new_status == 'stolen' %}
+                                    <i class="fas fa-exclamation-triangle text-danger"></i>
+                                {% endif %}
+                            </div>
+                            <div class="timeline-content">
+                                <p class="mb-1">
+                                    Status changed from 
+                                    <span class="badge bg-secondary">{{ history.old_status or 'initial' }}</span>
+                                    to 
+                                    <span class="badge bg-primary">{{ history.new_status }}</span>
+                                </p>
+                                <small class="text-muted">{{ history.changed_at.strftime('%Y-%m-%d %H:%M') }}</small>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="text-muted text-center">No status changes recorded yet.</p>
+                {% endif %}
+                <div class="text-center mt-3">
+                    <a href="{{ url_for('main.product_history', product_id=product.id) }}" class="btn btn-outline-info btn-sm">
+                        <i class="fas fa-history"></i> View Full History
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.timeline {
+    position: relative;
+    padding-left: 30px;
+}
+
+.timeline-item {
+    position: relative;
+    margin-bottom: 20px;
+}
+
+.timeline-marker {
+    position: absolute;
+    left: -35px;
+    top: 0;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: white;
+    border: 2px solid #dee2e6;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.timeline::before {
+    content: '';
+    position: absolute;
+    left: -20px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: #dee2e6;
+}
+</style>
+{% endblock %}

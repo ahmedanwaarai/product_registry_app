@@ -1,0 +1,145 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h2><i class="fas fa-search"></i> Product Verification</h2>
+        <p class="text-muted">Verify product authenticity and status using serial number</p>
+        <hr>
+    </div>
+</div>
+
+<!-- Verification Form -->
+<div class="row">
+    <div class="col-md-8 mx-auto">
+        <div class="card">
+            <div class="card-header">
+                <h4><i class="fas fa-shield-check"></i> Enter Product Serial Number</h4>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    {{ form.hidden_tag() }}
+                    <div class="input-group mb-3">
+                        {{ form.serial_number(class="form-control form-control-lg") }}
+                        {{ form.submit(class="btn btn-primary btn-lg") }}
+                    </div>
+                    {% for error in form.serial_number.errors %}
+                        <div class="text-danger small">{{ error }}</div>
+                    {% endfor %}
+                    <small class="form-text text-muted">
+                        Enter the complete serial number as it appears on the product
+                    </small>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Verification Results -->
+{% if product %}
+<div class="row mt-4">
+    <div class="col-md-8 mx-auto">
+        <div class="card">
+            <div class="card-header">
+                <h4><i class="fas fa-clipboard-check"></i> Verification Results</h4>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h5>Product Information</h5>
+                        <table class="table table-borderless">
+                            <tr>
+                                <td><strong>Product Name:</strong></td>
+                                <td>{{ product.name }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Serial Number:</strong></td>
+                                <td><code>{{ product.serial_number }}</code></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Category:</strong></td>
+                                <td>{{ product.category.name }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Brand:</strong></td>
+                                <td>{{ product.brand.name }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Registered:</strong></td>
+                                <td>{{ product.created_at.strftime('%Y-%m-%d') }}</td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="col-md-6">
+                        <h5>Product Status</h5>
+                        {% if product.status == 'for_sale' %}
+                            <div class="alert alert-success" role="alert">
+                                <i class="fas fa-check-circle fa-2x mb-2"></i><br>
+                                <strong>Status: Available for Sale</strong><br>
+                                This product is registered and available for purchase or transfer.
+                            </div>
+                        {% elif product.status == 'locked' %}
+                            <div class="alert alert-warning" role="alert">
+                                <i class="fas fa-lock fa-2x mb-2"></i><br>
+                                <strong>Status: Locked</strong><br>
+                                This product is temporarily locked and not available for sale.
+                            </div>
+                        {% elif product.status == 'stolen' %}
+                            <div class="alert alert-danger" role="alert">
+                                <i class="fas fa-exclamation-triangle fa-2x mb-2"></i><br>
+                                <strong>Status: Product is locked/stolen</strong><br>
+                                <strong>Not eligible for sale.</strong><br>
+                                This product has been reported as stolen or lost.
+                            </div>
+                        {% endif %}
+                        
+                        <div class="mt-3">
+                            <p class="text-muted small">
+                                <i class="fas fa-info-circle"></i> 
+                                For privacy and security reasons, owner details are not displayed to unauthorized users.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Information Section -->
+<div class="row mt-4">
+    <div class="col-md-8 mx-auto">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-info-circle"></i> About Product Verification</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="text-center">
+                            <i class="fas fa-shield-alt fa-3x text-success mb-2"></i>
+                            <h6>Secure Verification</h6>
+                            <p class="small text-muted">All products are verified against our secure database</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="text-center">
+                            <i class="fas fa-user-shield fa-3x text-primary mb-2"></i>
+                            <h6>Privacy Protected</h6>
+                            <p class="small text-muted">Owner information is protected and not disclosed</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="text-center">
+                            <i class="fas fa-clock fa-3x text-info mb-2"></i>
+                            <h6>Real-time Status</h6>
+                            <p class="small text-muted">Get instant, up-to-date product status information</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

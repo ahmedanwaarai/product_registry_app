@@ -1,0 +1,446 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h2><i class="fas fa-handshake"></i> Create Purchase Deal</h2>
+        <p class="text-muted">Create a deal by entering seller details and verifying product serial numbers</p>
+        <hr>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-10 mx-auto">
+        <form method="POST" id="dealForm" novalidate>
+            {{ form.hidden_tag() }}
+            
+            <!-- Seller Information Section -->
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-user"></i> Seller Information</h5>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info mb-3">
+                        <i class="fas fa-info-circle"></i>
+                        <strong>Note:</strong> This seller information is for deal documentation purposes only. 
+                        The actual seller will be determined by the ownership of the product serial numbers you enter below. 
+                        You (the logged-in user) are the buyer in this transaction.
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                {{ form.seller_name.label(class="form-label") }}
+                                {{ form.seller_name(class="form-control", id="seller_name", required=True) }}
+                                {% if form.seller_name.errors %}
+                                    {% for error in form.seller_name.errors %}
+                                        <div class="text-danger small">{{ error }}</div>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                {{ form.seller_mobile.label(class="form-label") }}
+                                {{ form.seller_mobile(class="form-control", id="seller_mobile", required=True) }}
+                                {% if form.seller_mobile.errors %}
+                                    {% for error in form.seller_mobile.errors %}
+                                        <div class="text-danger small">{{ error }}</div>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="seller_id_card" class="form-label">CNIC Number <span class="text-danger">*</span></label>
+                                {{ form.seller_id_card(class="form-control", id="seller_id_card", required=True, placeholder="e.g., 12345-1234567-1") }}
+                                {% if form.seller_id_card.errors %}
+                                    {% for error in form.seller_id_card.errors %}
+                                        <div class="text-danger small">{{ error }}</div>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                {{ form.seller_address.label(class="form-label") }}
+                                {{ form.seller_address(class="form-control", id="seller_address", required=True) }}
+                                {% if form.seller_address.errors %}
+                                    {% for error in form.seller_address.errors %}
+                                        <div class="text-danger small">{{ error }}</div>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Product Verification Section -->
+            <div class="card mb-4">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0"><i class="fas fa-box"></i> Product Verification</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label for="serial_input" class="form-label">Add Product Serial Number</label>
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="serial_input" placeholder="Enter serial number" maxlength="50">
+                            <button type="button" class="btn btn-success" id="verify_btn">
+                                <i class="fas fa-search"></i> Verify & Add
+                            </button>
+                        </div>
+                        <div class="form-text">
+                            <i class="fas fa-info-circle"></i> 
+                            Enter one serial number at a time. System will verify product status and display details.
+                        </div>
+                    </div>
+                    
+                    <!-- Verification Status -->
+                    <div id="verification_status" class="mb-3" style="display: none;"></div>
+                    
+                    <!-- Verified Products List -->
+                    <div id="verified_products" class="mb-3">
+                        <h6 class="text-success">Verified Products:</h6>
+                        <div id="products_list" class="border rounded p-3 bg-light" style="min-height: 100px;">
+                            <p class="text-muted text-center mb-0">No products added yet. Start by entering a serial number above.</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Hidden field to store serial numbers -->
+                    {{ form.serial_numbers(id="serial_numbers", style="display: none;") }}
+                </div>
+            </div>
+
+            <!-- Deal Information Section -->
+            <div class="card mb-4">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0"><i class="fas fa-comment"></i> Deal Information</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        {{ form.description.label(class="form-label") }}
+                        {{ form.description(class="form-control", rows="3", placeholder="Optional: Add any additional notes about this deal...") }}
+                        {% if form.description.errors %}
+                            {% for error in form.description.errors %}
+                                <div class="text-danger small">{{ error }}</div>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Total Products</label>
+                                <input type="text" class="form-control" id="total_products" value="0" readonly>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Deal Status</label>
+                                <input type="text" class="form-control" value="Pending Admin Approval" readonly>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Submit Section -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-md-8">
+                            <h6 class="mb-1">Ready to Submit Deal?</h6>
+                            <p class="text-muted mb-0">Make sure all seller information is correct and you've added all products.</p>
+                        </div>
+                        <div class="col-md-4 text-end">
+                            <a href="{{ url_for('main.user_dashboard') }}" class="btn btn-secondary me-2">
+                                <i class="fas fa-times"></i> Cancel
+                            </a>
+                            <button type="submit" class="btn btn-primary" id="submit_btn" disabled>
+                                <i class="fas fa-handshake"></i> Create Deal
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Information Cards -->
+<div class="row mt-4">
+    <div class="col-lg-6">
+        <div class="card border-info">
+            <div class="card-header bg-info text-white">
+                <h6><i class="fas fa-lightbulb"></i> How Deal Creation Works</h6>
+            </div>
+            <div class="card-body">
+                <ol class="mb-0 small">
+                    <li><strong>Enter Seller Details:</strong> Provide complete seller information</li>
+                    <li><strong>Verify Products:</strong> Add serial numbers one by one for verification</li>
+                    <li><strong>System Check:</strong> System checks if products are available for sale</li>
+                    <li><strong>Create Deal:</strong> Submit deal for admin approval</li>
+                    <li><strong>PDF Export:</strong> Once approved, export deal as PDF</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="card border-warning">
+            <div class="card-header bg-warning text-dark">
+                <h6><i class="fas fa-exclamation-triangle"></i> Important Notes</h6>
+            </div>
+            <div class="card-body">
+                <ul class="mb-0 small">
+                    <li>Only products marked "For Sale" can be added to deals</li>
+                    <li>Locked or stolen products will be rejected automatically</li>
+                    <li><strong>Business Rule:</strong> Users can only sell products after 3 days of registration</li>
+                    <li><strong>Business Rule:</strong> Shopkeepers can sell/purchase products immediately</li>
+                    <li>Seller does not need to have an account in the system</li>
+                    <li>All deals require admin approval before completion</li>
+                    <li>Ownership transfers automatically after admin approval</li>
+                    <li>You can print/export the deal as PDF after approval</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Deal creation JavaScript functionality
+let verifiedProducts = [];
+let productCount = 0;
+
+document.addEventListener('DOMContentLoaded', function() {
+    const serialInput = document.getElementById('serial_input');
+    const verifyBtn = document.getElementById('verify_btn');
+    const verificationStatus = document.getElementById('verification_status');
+    const productsList = document.getElementById('products_list');
+    const serialNumbersField = document.getElementById('serial_numbers');
+    const totalProductsField = document.getElementById('total_products');
+    const submitBtn = document.getElementById('submit_btn');
+    
+        // Verify product function
+        function verifyProduct(serialNumber) {
+            if (!serialNumber.trim()) {
+                showStatus('Please enter a serial number', 'danger');
+                return;
+            }
+            
+            if (verifiedProducts.some(p => p.serial === serialNumber)) {
+                showStatus('Product already added to this deal', 'warning');
+                return;
+            }
+            
+            verifyBtn.disabled = true;
+            verifyBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verifying...';
+            
+            // Make AJAX call to verify product
+            fetch('/verify_product_ajax', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': document.querySelector('[name=csrf_token]').value
+                },
+                body: JSON.stringify({
+                    serial_number: serialNumber
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    if (data.product.status === 'for_sale' && data.product.can_sell) {
+                        addVerifiedProduct({
+                            serial: serialNumber,
+                            name: data.product.name,
+                            brand: data.product.brand,
+                            category: data.product.category
+                        });
+                        showStatus('Product verified and added successfully!', 'success');
+                        serialInput.value = '';
+                    } else if (data.product.status === 'locked') {
+                        showStatus('Product is locked and cannot be sold', 'danger');
+                    } else if (data.product.status === 'stolen') {
+                        showStatus('Product is reported as stolen/snatched', 'danger');
+                    } else {
+                        showStatus('Product is not available for sale or not eligible due to holding policies', 'warning');
+                    }
+                } else {
+                    showStatus(data.message || 'Product not found in database', 'danger');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showStatus('Error verifying product. Please try again.', 'danger');
+            })
+            .finally(() => {
+                verifyBtn.disabled = false;
+                verifyBtn.innerHTML = '<i class="fas fa-search"></i> Verify & Add';
+            });
+        }
+    
+    // Show verification status
+    function showStatus(message, type) {
+        verificationStatus.style.display = 'block';
+        verificationStatus.className = `alert alert-${type}`;
+        verificationStatus.innerHTML = `<i class="fas fa-${type === 'success' ? 'check-circle' : type === 'danger' ? 'times-circle' : 'exclamation-triangle'}"></i> ${message}`;
+        
+        setTimeout(() => {
+            verificationStatus.style.display = 'none';
+        }, 3000);
+    }
+    
+    // Add verified product to list
+    function addVerifiedProduct(product) {
+        verifiedProducts.push(product);
+        productCount++;
+        updateProductsList();
+        updateSerialNumbersField();
+        updateTotalProducts();
+        checkSubmitButton();
+    }
+    
+    // Remove product from list
+    function removeProduct(serial) {
+        verifiedProducts = verifiedProducts.filter(p => p.serial !== serial);
+        productCount--;
+        updateProductsList();
+        updateSerialNumbersField();
+        updateTotalProducts();
+        checkSubmitButton();
+    }
+    
+    // Update products display
+    function updateProductsList() {
+        if (verifiedProducts.length === 0) {
+            productsList.innerHTML = '<p class="text-muted text-center mb-0">No products added yet. Start by entering a serial number above.</p>';
+            return;
+        }
+        
+        let html = '';
+        verifiedProducts.forEach((product, index) => {
+            html += `
+                <div class="d-flex justify-content-between align-items-center border-bottom py-2 ${index === 0 ? 'border-top' : ''}">
+                    <div>
+                        <strong>${product.name}</strong>
+                        <br>
+                        <small class="text-muted">
+                            <span class="badge bg-primary">${product.brand}</span>
+                            <span class="badge bg-secondary">${product.category}</span>
+                            <span class="badge bg-info">${product.serial}</span>
+                        </small>
+                    </div>
+                    <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeProduct('${product.serial}')">
+                        <i class="fas fa-trash"></i> Remove
+                    </button>
+                </div>
+            `;
+        });
+        productsList.innerHTML = html;
+    }
+    
+    // Update hidden field with serial numbers
+    function updateSerialNumbersField() {
+        const serials = verifiedProducts.map(p => p.serial).join(',');
+        serialNumbersField.value = serials;
+    }
+    
+    // Update total products count
+    function updateTotalProducts() {
+        totalProductsField.value = productCount;
+    }
+    
+    // Check if form can be submitted
+    function checkSubmitButton() {
+        // Try to find the actual field elements
+        const sellerNameField = document.getElementById('seller_name') || document.querySelector('input[name="seller_name"]');
+        const sellerMobileField = document.getElementById('seller_mobile') || document.querySelector('input[name="seller_mobile"]');
+        const sellerIdCardField = document.getElementById('seller_id_card') || document.querySelector('input[name="seller_id_card"]');
+        const sellerAddressField = document.getElementById('seller_address') || document.querySelector('textarea[name="seller_address"]');
+        
+        const sellerName = sellerNameField ? sellerNameField.value.trim() : '';
+        const sellerMobile = sellerMobileField ? sellerMobileField.value.trim() : '';
+        const sellerIdCard = sellerIdCardField ? sellerIdCardField.value.trim() : '';
+        const sellerAddress = sellerAddressField ? sellerAddressField.value.trim() : '';
+        
+        const canSubmit = sellerName && sellerMobile && sellerIdCard && sellerAddress && productCount > 0;
+        submitBtn.disabled = !canSubmit;
+        
+        // Debug output
+        console.log('Validation check:', {
+            sellerNameField: !!sellerNameField,
+            sellerMobileField: !!sellerMobileField,
+            sellerIdCardField: !!sellerIdCardField,
+            sellerAddressField: !!sellerAddressField,
+            sellerName: !!sellerName,
+            sellerMobile: !!sellerMobile,
+            sellerIdCard: !!sellerIdCard,
+            sellerAddress: !!sellerAddress,
+            productCount: productCount,
+            canSubmit: canSubmit
+        });
+    }
+    
+    // Event listeners
+    verifyBtn.addEventListener('click', () => {
+        verifyProduct(serialInput.value.trim());
+    });
+    
+    serialInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            verifyProduct(serialInput.value.trim());
+        }
+    });
+    
+    // Monitor form fields for submit button state
+    const fieldSelectors = [
+        'input[name="seller_name"]',
+        'input[name="seller_mobile"]', 
+        'input[name="seller_id_card"]',
+        'textarea[name="seller_address"]'
+    ];
+    
+    fieldSelectors.forEach(selector => {
+        const field = document.querySelector(selector);
+        if (field) {
+            field.addEventListener('input', checkSubmitButton);
+        }
+    });
+    
+    // Make removeProduct function global
+    window.removeProduct = removeProduct;
+    
+    // Form submission handler
+    const dealForm = document.getElementById('dealForm');
+    dealForm.addEventListener('submit', function(e) {
+        console.log('Form submission attempted');
+        console.log('Verified products:', verifiedProducts);
+        console.log('Serial numbers field value:', serialNumbersField.value);
+        
+        // Only check if we have products - let HTML5 validation handle the rest
+        if (verifiedProducts.length === 0) {
+            e.preventDefault();
+            alert('Please add at least one product before creating the deal.');
+            return false;
+        }
+        
+        // All basic validation passed - disable submit button to prevent double submission
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating Deal...';
+        
+        console.log('Form validation passed, submitting...');
+        // Let the form submit naturally - HTML5 validation will handle required fields
+        return true;
+    });
+    
+    // Initial validation check on page load
+    setTimeout(() => {
+        checkSubmitButton();
+    }, 100);
+});
+</script>
+{% endblock %}

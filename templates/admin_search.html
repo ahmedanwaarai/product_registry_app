@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h2><i class="fas fa-search"></i> Admin Search</h2>
+        <p class="text-muted">Search products by serial number or user mobile number</p>
+        <hr>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-search"></i> Search Products</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    {{ form.hidden_tag() }}
+                    <div class="mb-3">
+                        {{ form.search_type.label(class="form-label") }}
+                        {{ form.search_type(class="form-select") }}
+                        {% if form.search_type.errors %}
+                            <div class="text-danger">
+                                {% for error in form.search_type.errors %}
+                                    <small>{{ error }}</small>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div class="mb-3">
+                        {{ form.search_query.label(class="form-label") }}
+                        {{ form.search_query(class="form-control", placeholder="Enter search term...") }}
+                        {% if form.search_query.errors %}
+                            <div class="text-danger">
+                                {% for error in form.search_query.errors %}
+                                    <small>{{ error }}</small>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div class="d-grid">
+                        {{ form.submit(class="btn btn-primary") }}
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-list"></i> Search Results</h5>
+            </div>
+            <div class="card-body">
+                {% if results %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Product Name</th>
+                                    <th>Owner</th>
+                                    <th>Serial Number</th>
+                                    <th>Category</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for product in results %}
+                                <tr>
+                                    <td><strong>{{ product.name }}</strong></td>
+                                    <td>{{ product.owner.username }}</td>
+                                    <td><code>{{ product.serial_number }}</code></td>
+                                    <td>{{ product.category.name }}</td>
+                                    <td>
+                                        {% if product.status == 'for_sale' %}
+                                            <span class="badge bg-success">For Sale</span>
+                                        {% elif product.status == 'locked' %}
+                                            <span class="badge bg-warning">Locked</span>
+                                        {% elif product.status == 'stolen' %}
+                                            <span class="badge bg-danger">Stolen</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <a href="{{ url_for('main.product_history', product_id=product.id) }}" class="btn btn-outline-info btn-sm me-1" title="View Product History">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <a href="{{ url_for('main.update_product_status', product_id=product.id) }}" class="btn btn-outline-primary btn-sm" title="Update Status">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-search fa-4x text-muted mb-3"></i>
+                        <h5 class="text-muted">No Results</h5>
+                        <p class="text-muted">Perform a search to see results here.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Back to Dashboard -->
+<div class="row mt-4">
+    <div class="col-12">
+        <a href="{{ url_for('main.admin_dashboard') }}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Back to Admin Dashboard
+        </a>
+    </div>
+</div>
+{% endblock %}

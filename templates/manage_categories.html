@@ -1,0 +1,189 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h2><i class="fas fa-tags"></i> Manage Categories</h2>
+        <p class="text-muted">Add and manage product categories for the registry system</p>
+        <hr>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Add New Category Form -->
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-plus"></i> Add New Category</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    {{ form.hidden_tag() }}
+                    <div class="mb-3">
+                        {{ form.name.label(class="form-label") }}
+                        {{ form.name(class="form-control") }}
+                        {% if form.name.errors %}
+                            <div class="text-danger">
+                                {% for error in form.name.errors %}
+                                    <small>{{ error }}</small>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div class="mb-3">
+                        {{ form.description.label(class="form-label") }}
+                        {{ form.description(class="form-control", rows="3") }}
+                        {% if form.description.errors %}
+                            <div class="text-danger">
+                                {% for error in form.description.errors %}
+                                    <small>{{ error }}</small>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div class="d-grid">
+                        {{ form.submit(class="btn btn-primary") }}
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Existing Categories List -->
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5><i class="fas fa-list"></i> Existing Categories</h5>
+                <span class="badge bg-info">{{ categories|length }} Categories</span>
+            </div>
+            <div class="card-body">
+                {% if categories %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Description</th>
+                                    <th>Products</th>
+                                    <th>Created</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for category in categories %}
+                                <tr>
+                                    <td>
+                                        <strong class="text-primary">{{ category.name }}</strong>
+                                    </td>
+                                    <td>
+                                        <small class="text-muted">
+                                            {{ category.description[:50] + '...' if category.description and category.description|length > 50 else category.description or 'No description' }}
+                                        </small>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-secondary">{{ category.products|length }}</span>
+                                    </td>
+                                    <td>
+                                        <small>{{ category.created_at.strftime('%Y-%m-%d') }}</small>
+                                    </td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm">
+                                            <button class="btn btn-outline-primary btn-sm" 
+                                                    data-bs-toggle="modal" 
+                                                    data-bs-target="#categoryModal{{ category.id }}"
+                                                    title="View Details">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                            {% if category.products|length == 0 %}
+                                            <button class="btn btn-outline-danger btn-sm" 
+                                                    onclick="confirmDelete('{{ category.name }}')" 
+                                                    title="Delete Category">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                            {% else %}
+                                            <button class="btn btn-outline-secondary btn-sm" 
+                                                    disabled 
+                                                    title="Cannot delete - has products">
+                                                <i class="fas fa-lock"></i>
+                                            </button>
+                                            {% endif %}
+                                        </div>
+                                    </td>
+                                </tr>
+
+                                <!-- Category Details Modal -->
+                                <div class="modal fade" id="categoryModal{{ category.id }}" tabindex="-1">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title">Category: {{ category.name }}</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <p><strong>Name:</strong> {{ category.name }}</p>
+                                                <p><strong>Description:</strong> {{ category.description or 'No description provided' }}</p>
+                                                <p><strong>Created:</strong> {{ category.created_at.strftime('%Y-%m-%d %H:%M') }}</p>
+                                                <p><strong>Total Products:</strong> {{ category.products|length }}</p>
+                                                
+                                                {% if category.products %}
+                                                <h6>Recent Products:</h6>
+                                                <ul class="list-group list-group-flush">
+                                                    {% for product in category.products[:5] %}
+                                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                                        <div>
+                                                            <strong>{{ product.name }}</strong><br>
+                                                            <small class="text-muted">{{ product.serial_number }}</small>
+                                                        </div>
+                                                        <span class="badge bg-{{ 'success' if product.status == 'for_sale' else 'warning' if product.status == 'locked' else 'danger' }}">
+                                                            {{ product.status.replace('_', ' ').title() }}
+                                                        </span>
+                                                    </li>
+                                                    {% endfor %}
+                                                    {% if category.products|length > 5 %}
+                                                    <li class="list-group-item text-center text-muted">
+                                                        ... and {{ category.products|length - 5 }} more
+                                                    </li>
+                                                    {% endif %}
+                                                </ul>
+                                                {% endif %}
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-tags fa-4x text-muted mb-3"></i>
+                        <h5 class="text-muted">No categories found</h5>
+                        <p class="text-muted">Add your first category to get started.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Back to Dashboard -->
+<div class="row mt-4">
+    <div class="col-12">
+        <a href="{{ url_for('main.admin_dashboard') }}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Back to Admin Dashboard
+        </a>
+    </div>
+</div>
+
+<script>
+function confirmDelete(categoryName) {
+    if (confirm(`Are you sure you want to delete the category "${categoryName}"? This action cannot be undone.`)) {
+        // Add delete functionality here if needed
+        alert('Delete functionality would be implemented here');
+    }
+}
+</script>
+{% endblock %}

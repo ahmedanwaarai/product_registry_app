@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h3><i class="fas fa-plus-circle"></i> Register New Product</h3>
+                <small class="text-muted">Protect your valuable equipment by registering it in our secure database</small>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    {{ form.hidden_tag() }}
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                {{ form.name.label(class="form-label") }}
+                                {{ form.name(class="form-control", placeholder="e.g., Canon EOS R5") }}
+                                {% if form.name.errors %}
+                                    <div class="text-danger">
+                                        {% for error in form.name.errors %}
+                                            <small>{{ error }}</small>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                {{ form.serial_number.label(class="form-label") }}
+                                {{ form.serial_number(class="form-control", placeholder="e.g., ABC123XYZ789") }}
+                                {% if form.serial_number.errors %}
+                                    <div class="text-danger">
+                                        {% for error in form.serial_number.errors %}
+                                            <small>{{ error }}</small>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                                <small class="form-text text-muted">Serial number must be unique and will be used for verification</small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                {{ form.category_id.label(class="form-label") }}
+                                {{ form.category_id(class="form-select") }}
+                                {% if form.category_id.errors %}
+                                    <div class="text-danger">
+                                        {% for error in form.category_id.errors %}
+                                            <small>{{ error }}</small>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                {{ form.brand_id.label(class="form-label") }}
+                                {{ form.brand_id(class="form-select") }}
+                                {% if form.brand_id.errors %}
+                                    <div class="text-danger">
+                                        {% for error in form.brand_id.errors %}
+                                            <small>{{ error }}</small>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <div class="alert alert-info">
+                            <h6><i class="fas fa-info-circle"></i> Important Information</h6>
+                            <ul class="mb-0">
+                                <li>Your product will be registered with status "For Sale" by default</li>
+                                <li>You can change the status to "Locked" or "Stolen" anytime from your dashboard</li>
+                                <li>Serial numbers must be unique and cannot be changed after registration</li>
+                                <li>All registered products can be tracked and verified by other users</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ url_for('main.user_dashboard') }}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Back to Dashboard
+                        </a>
+                        {{ form.submit(class="btn btn-success") }}
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Registration Info -->
+        <div class="row mt-4">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body text-center">
+                        <i class="fas fa-gift fa-2x text-success mb-2"></i>
+                        <h6>Free Registration</h6>
+                        <p class="small text-muted">Register up to 3 products for free</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body text-center">
+                        <i class="fas fa-crown fa-2x text-warning mb-2"></i>
+                        <h6>Premium Benefits</h6>
+                        <p class="small text-muted">Subscribe for unlimited registrations</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

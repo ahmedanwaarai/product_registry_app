@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h2><i class="fas fa-list"></i> My Deals</h2>
+        <p class="text-muted">View all your submitted deals</p>
+        <hr>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        {% if buyer_deals or seller_deals %}
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Deal ID</th>
+                        <th>Buyer</th>
+                        <th>Seller</th>
+                        <th>Total Amount</th>
+                        <th>Products</th>
+                        <th>Date</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for deal in buyer_deals + seller_deals %}
+                    <tr>
+                        <td><span class="badge bg-secondary">#{{ deal.id }}</span></td>
+                        <td>{{ deal.buyer.username }}</td>
+                        <td>{{ deal.seller.username }}</td>
+                        <td>${{ '%.2f' % deal.total_amount }}</td>
+                        <td>
+                            {% for item in deal.deal_items %}
+                            <small class="d-block">{{ item.product.name }} - ${{ '%.2f' % item.price }}</small>
+                            {% endfor %}
+                        </td>
+                        <td>{{ utc_to_pakistan(deal.created_at).split(' ')[0] }}</td>
+                        <td><span class="badge bg-info">{{ deal.status.title() }}</span></td>
+                        <td>
+                            <a href="{{ url_for('main.deal_details', deal_id=deal.id) }}" class="btn btn-outline-primary btn-sm">
+                                <i class="fas fa-eye"></i> View Details
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-5">
+            <i class="fas fa-handshake fa-4x text-muted mb-3"></i>
+            <h5 class="text-muted">No deals found</h5>
+            <p class="text-muted">Start creating deals to see them listed here.</p>
+            <a href="{{ url_for('main.create_deal') }}" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Create Your First Deal
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

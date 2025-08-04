@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Search Deal History</h2>
+    <form method="get" action="{{ url_for('main.admin_deal_history') }}">
+        <div class="form-group">
+            <label for="search">Search by Serial Number, Mobile Number, ID Card Number, or Name</label>
+            <input type="text" class="form-control" id="search" name="search" value="{{ search_query }}" placeholder="Enter search term...">
+        </div>
+        <button type="submit" class="btn btn-primary mt-2">Search</button>
+    </form>
+
+    {% if history_results %}
+    <h3 class="mt-4">Results:</h3>
+    <table class="table table-striped mt-2">
+        <thead>
+            <tr>
+                <th>Serial Number</th>
+                <th>Product Name</th>
+                <th>Current Owner</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for product in history_results %}
+            <tr>
+                <td>{{ product.serial_number }}</td>
+                <td>{{ product.name }}</td>
+                <td>{{ product.owner.username }}</td>
+                <td>
+                    <a href="{{ url_for('main.admin_product_deal_history', product_id=product.id) }}" class="btn btn-info">
+                        <i class="fas fa-eye"></i> View History
+                    </a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p class="mt-4">No results found.</p>
+    {% endif %}
+</div>
+{% endblock %}

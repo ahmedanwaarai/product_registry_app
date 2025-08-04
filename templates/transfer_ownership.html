@@ -1,0 +1,157 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h2><i class="fas fa-exchange-alt"></i> Transfer Ownership</h2>
+        <p class="text-muted">Transfer ownership of products to your account from another seller</p>
+        <hr>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8 mx-auto">
+        <div class="card">
+            <div class="card-header bg-warning text-dark">
+                <h4><i class="fas fa-exchange-alt"></i> Ownership Transfer</h4>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    {{ form.hidden_tag() }}
+                    
+                    <!-- Seller Information Section -->
+                    <div class="mb-4">
+                        <h5 class="text-primary"><i class="fas fa-user"></i> Previous Owner Information</h5>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    {{ form.seller_name.label(class="form-label") }}
+                                    {{ form.seller_name(class="form-control") }}
+                                    {% if form.seller_name.errors %}
+                                        {% for error in form.seller_name.errors %}
+                                            <div class="text-danger small">{{ error }}</div>
+                                        {% endfor %}
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    {{ form.seller_mobile.label(class="form-label") }}
+                                    {{ form.seller_mobile(class="form-control") }}
+                                    {% if form.seller_mobile.errors %}
+                                        {% for error in form.seller_mobile.errors %}
+                                            <div class="text-danger small">{{ error }}</div>
+                                        {% endfor %}
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    {{ form.seller_id_card.label(class="form-label") }}
+                                    {{ form.seller_id_card(class="form-control") }}
+                                    {% if form.seller_id_card.errors %}
+                                        {% for error in form.seller_id_card.errors %}
+                                            <div class="text-danger small">{{ error }}</div>
+                                        {% endfor %}
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    {{ form.seller_address.label(class="form-label") }}
+                                    {{ form.seller_address(class="form-control") }}
+                                    {% if form.seller_address.errors %}
+                                        {% for error in form.seller_address.errors %}
+                                            <div class="text-danger small">{{ error }}</div>
+                                        {% endfor %}
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Product Information Section -->
+                    <div class="mb-4">
+                        <h5 class="text-primary"><i class="fas fa-box"></i> Products to Transfer</h5>
+                        <div class="mb-3">
+                            {{ form.serial_numbers.label(class="form-label") }}
+                            {{ form.serial_numbers(class="form-control") }}
+                            <div class="form-text">
+                                <i class="fas fa-info-circle"></i> 
+                                Enter serial numbers separated by commas. System will verify products exist and are not locked/stolen.
+                            </div>
+                            {% if form.serial_numbers.errors %}
+                                {% for error in form.serial_numbers.errors %}
+                                    <div class="text-danger small">{{ error }}</div>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Transfer Description Section -->
+                    <div class="mb-4">
+                        <h5 class="text-primary"><i class="fas fa-comment"></i> Transfer Description</h5>
+                        <div class="mb-3">
+                            {{ form.description.label(class="form-label") }}
+                            {{ form.description(class="form-control") }}
+                            {% if form.description.errors %}
+                                {% for error in form.description.errors %}
+                                    <div class="text-danger small">{{ error }}</div>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-between">
+                        <a href="{{ url_for('main.user_dashboard') }}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Cancel
+                        </a>
+                        <button type="submit" class="btn btn-warning">
+                            <i class="fas fa-exchange-alt"></i> Transfer Ownership
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Warning Card -->
+<div class="row mt-4">
+    <div class="col-lg-8 mx-auto">
+        <div class="alert alert-warning" role="alert">
+            <h6><i class="fas fa-exclamation-triangle"></i> Important Notice</h6>
+            <ul class="mb-0">
+                <li><strong>Ownership Transfer:</strong> This process will permanently transfer ownership of products to your account</li>
+                <li><strong>Previous Owner Data:</strong> Previous ownership records are maintained for audit purposes (Admin only access)</li>
+                <li><strong>Product Verification:</strong> Only products that are not locked or reported stolen can be transferred</li>
+                <li><strong>Legal Responsibility:</strong> You confirm you have legal rights to transfer these products</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<!-- Information Card -->
+<div class="row mt-2">
+    <div class="col-lg-8 mx-auto">
+        <div class="card border-info">
+            <div class="card-header bg-info text-white">
+                <h6><i class="fas fa-lightbulb"></i> How Ownership Transfer Works</h6>
+            </div>
+            <div class="card-body">
+                <ol class="mb-0">
+                    <li><strong>Enter Previous Owner Details:</strong> Provide accurate information about who previously owned the products</li>
+                    <li><strong>Product Serial Verification:</strong> System checks if products exist and are transferable</li>
+                    <li><strong>Ownership History Record:</strong> A permanent record is created for audit trail</li>
+                    <li><strong>Immediate Transfer:</strong> Upon successful verification, ownership transfers to your account</li>
+                    <li><strong>Admin Visibility:</strong> Only administrators can view the complete ownership history</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

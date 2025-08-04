@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Create a New Deal</h2>
+    <p>This form allows you to create both Sale and Transfer deals.</p>
+    
+    <form method="POST" action="{{ url_for('main.create_unified_deal') }}">
+        {{ form.hidden_tag() }}
+        
+        <!-- Deal Type Selection -->
+        <div class="form-group">
+            {{ form.deal_type.label(class='form-control-label') }}
+            {{ form.deal_type(class='form-control') }}
+        </div>
+        
+        <!-- Buyer Information -->
+        <div class="form-group">
+            {{ form.buyer_username.label(class='form-control-label') }}
+            {{ form.buyer_username(class='form-control') }}
+        </div>
+        
+        <!-- Seller Information -->
+        <div class="form-group">
+            {{ form.seller_username.label(class='form-control-label') }}
+            {{ form.seller_username(class='form-control') }}
+            <small class="form-text text-muted">Required for registered sellers.</small>
+        </div>
+
+        <!-- Product Information -->
+        <div class="form-group">
+            {{ form.serial_numbers.label(class='form-control-label') }}
+            {{ form.serial_numbers(class='form-control') }}
+            <small class="form-text text-muted">Enter one or more serial numbers, separated by commas.</small>
+        </div>
+        
+        <!-- Deal Details -->
+        <div class="form-group">
+            {{ form.total_amount.label(class='form-control-label') }}
+            {{ form.total_amount(class='form-control') }}
+            <small class="form-text text-muted">For Transfer Deals, this can be 0.</small>
+        </div>
+        
+        <div class="form-group">
+            {{ form.description.label(class='form-control-label') }}
+            {{ form.description(class='form-control') }}
+        </div>
+        
+        <div class="form-group">
+            {{ form.submit(class='btn btn-primary') }}
+        </div>
+    </form>
+</div>
+{% endblock %}
+

@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Shopkeeper Approvals</h2>
+    <p>Review and approve new shopkeeper registrations.</p>
+    
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h4>Pending Approvals</h4>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group">
+                        {% for shopkeeper in pending_shopkeepers %}
+                        <li class="list-group-item">
+                            <strong>{{ shopkeeper.username }}</strong> ({{ shopkeeper.email }})
+                            <form method="POST" action="{{ url_for('main.approve_shopkeeper', user_id=shopkeeper.id) }}" class="float-right">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                                <input type="hidden" name="action" value="approve">
+                                <button type="submit" class="btn btn-sm btn-success">Approve</button>
+                            </form>
+                        </li>
+                        {% endfor %}
+                        {% if not pending_shopkeepers %}
+                        <li class="list-group-item">No pending approvals.</li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h4>Approved Shopkeepers</h4>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group">
+                        {% for shopkeeper in approved_shopkeepers %}
+                        <li class="list-group-item">
+                            <strong>{{ shopkeeper.username }}</strong> ({{ shopkeeper.email }})
+                        </li>
+                        {% endfor %}
+                        {% if not approved_shopkeepers %}
+                        <li class="list-group-item">No approved shopkeepers.</li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

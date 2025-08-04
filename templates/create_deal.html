@@ -1,0 +1,219 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h2><i class="fas fa-handshake"></i> Create Deal</h2>
+        <p class="text-muted">Create a new deal between users with your registered products</p>
+        <hr>
+    </div>
+</div>
+
+<!-- Deal Creation Form -->
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h4><i class="fas fa-plus"></i> Deal Information</h4>
+            </div>
+            <div class="card-body">
+                <form method="POST" id="dealForm">
+                    {{ form.hidden_tag() }}
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            {{ form.buyer_username.label(class="form-label") }}
+                            {{ form.buyer_username(class="form-control", placeholder="Enter buyer's username") }}
+                            {% for error in form.buyer_username.errors %}
+                                <div class="text-danger small">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                        <div class="col-md-6">
+                            {{ form.seller_username.label(class="form-label") }}
+                            {{ form.seller_username(class="form-control", placeholder="Enter seller's username", value=current_user.username) }}
+                            {% for error in form.seller_username.errors %}
+                                <div class="text-danger small">{{ error }}</div>
+                            {% endfor %}
+                            <small class="form-text text-muted">Default: Your username</small>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Deal Type</label>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="deal_type" id="single_item" value="single" checked onchange="toggleDealType()">
+                            <label class="form-check-label" for="single_item">
+                                <strong>Single Item Deal</strong> - One product per transaction
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="deal_type" id="multi_item" value="multi" onchange="toggleDealType()">
+                            <label class="form-check-label" for="multi_item">
+                                <strong>Multi-Item Deal</strong> - Multiple products in one transaction
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <!-- Product Selection Section -->
+                    <div class="mb-3">
+                        <label class="form-label">Select Products for Deal</label>
+                        {% if user_products %}
+                            <div id="single-product-section">
+                                <select class="form-select" name="single_product_id" id="single_product_select">
+                                    <option value="">Choose a product...</option>
+                                    {% for product in user_products %}
+                                    <option value="{{ product.id }}" data-name="{{ product.name }}" data-serial="{{ product.serial_number }}">
+                                        {{ product.name }} ({{ product.serial_number }})
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                                <div class="mt-2">
+                                    <label class="form-label">Price ($)</label>
+                                    <input type="number" class="form-control" name="single_product_price" step="0.01" min="0" placeholder="0.00">
+                                </div>
+                            </div>
+                            
+                            <div id="multi-product-section" style="display: none;">
+                                <div class="alert alert-info">
+                                    <i class="fas fa-info-circle"></i> Select multiple products by checking the boxes below. You can set individual prices for each product.
+                                </div>
+                                {% for product in user_products %}
+                                <div class="card mb-2">
+                                    <div class="card-body py-2">
+                                        <div class="row align-items-center">
+                                            <div class="col-md-6">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" name="multi_products" value="{{ product.id }}" id="product_{{ product.id }}">
+                                                    <label class="form-check-label" for="product_{{ product.id }}">
+                                                        <strong>{{ product.name }}</strong><br>
+                                                        <small class="text-muted">Serial: {{ product.serial_number }}</small><br>
+                                                        <small class="badge bg-info">{{ product.category.name }}</small>
+                                                        <small class="badge bg-secondary">{{ product.brand.name }}</small>
+                                                    </label>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <label class="form-label small">Price ($)</label>
+                                                <input type="number" class="form-control form-control-sm" name="price_{{ product.id }}" step="0.01" min="0" placeholder="0.00" disabled>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <small class="text-muted">Status: <span class="badge bg-success">{{ product.status.replace('_', ' ').title() }}</span></small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <div class="alert alert-warning">
+                                <i class="fas fa-exclamation-triangle"></i> 
+                                <strong>No products available!</strong> You need to register products that are "for sale" before creating deals.
+                                <a href="{{ url_for('main.register_product') }}" class="btn btn-sm btn-warning ms-2">Register Product</a>
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Deal Description (Optional)</label>
+                        <textarea class="form-control" name="deal_description" rows="3" placeholder="Add any additional details about this deal..."></textarea>
+                    </div>
+                    
+                    {% if user_products %}
+                        {{ form.submit(class="btn btn-primary") }}
+                    {% endif %}
+                    <a href="{{ url_for('main.user_dashboard') }}" class="btn btn-secondary">Cancel</a>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-info-circle"></i> Deal Guidelines</h5>
+            </div>
+            <div class="card-body">
+                <h6>Single Item Deal:</h6>
+                <ul class="small">
+                    <li>One product per transaction</li>
+                    <li>Simple and quick setup</li>
+                    <li>Ideal for individual sales</li>
+                </ul>
+                
+                <h6>Multi-Item Deal:</h6>
+                <ul class="small">
+                    <li>Multiple products in one deal</li>
+                    <li>Bulk transactions</li>
+                    <li>Set individual prices for each item</li>
+                </ul>
+                
+                <div class="alert alert-warning mt-3" role="alert">
+                    <i class="fas fa-exclamation-triangle"></i> <strong>Note:</strong> Both buyer and seller must exist in the system. Only products with "for sale" status can be included in deals.
+                </div>
+            </div>
+        </div>
+        
+        <!-- Your Available Products -->
+        {% if user_products %}
+        <div class="card mt-3">
+            <div class="card-header">
+                <h6><i class="fas fa-box"></i> Your Available Products ({{ user_products|length }})</h6>
+            </div>
+            <div class="card-body">
+                <div class="list-group list-group-flush">
+                    {% for product in user_products %}
+                    <div class="list-group-item d-flex justify-content-between align-items-center px-0">
+                        <div>
+                            <strong>{{ product.name }}</strong><br>
+                            <small class="text-muted">{{ product.serial_number }}</small>
+                        </div>
+                        <span class="badge bg-success rounded-pill">Available</span>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+function toggleDealType() {
+    const singleSection = document.getElementById('single-product-section');
+    const multiSection = document.getElementById('multi-product-section');
+    const singleRadio = document.getElementById('single_item');
+    
+    if (singleRadio.checked) {
+        singleSection.style.display = 'block';
+        multiSection.style.display = 'none';
+        // Disable multi-product inputs
+        document.querySelectorAll('#multi-product-section input').forEach(input => {
+            input.disabled = true;
+            if (input.type === 'checkbox') input.checked = false;
+        });
+        // Enable single product inputs
+        document.getElementById('single_product_select').disabled = false;
+        document.querySelector('input[name="single_product_price"]').disabled = false;
+    } else {
+        singleSection.style.display = 'none';
+        multiSection.style.display = 'block';
+        // Disable single product inputs
+        document.getElementById('single_product_select').disabled = true;
+        document.querySelector('input[name="single_product_price"]').disabled = true;
+        // Enable multi-product checkboxes
+        document.querySelectorAll('#multi-product-section input[type="checkbox"]').forEach(input => {
+            input.disabled = false;
+        });
+    }
+}
+
+// Enable/disable price inputs based on checkbox selection
+document.querySelectorAll('input[name="multi_products"]').forEach(checkbox => {
+    checkbox.addEventListener('change', function() {
+        const priceInput = document.querySelector('input[name="price_' + this.value + '"]');
+        priceInput.disabled = !this.checked;
+        if (!this.checked) priceInput.value = '';
+    });
+});
+</script>
+{% endblock %}

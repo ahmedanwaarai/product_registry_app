@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h2><i class="fas fa-handshake"></i> Create Deal</h2>
+        <p class="text-muted">Create a single-item or multi-item deal between users</p>
+        <hr>
+    </div>
+</div>
+
+<!-- Deal Creation Form -->
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h4><i class="fas fa-plus"></i> Deal Information</h4>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    {{ form.hidden_tag() }}
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            {{ form.buyer_username.label(class="form-label") }}
+                            {{ form.buyer_username(class="form-control") }}
+                            {% for error in form.buyer_username.errors %}
+                                <div class="text-danger small">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                        <div class="col-md-6">
+                            {{ form.seller_username.label(class="form-label") }}
+                            {{ form.seller_username(class="form-control") }}
+                            {% for error in form.seller_username.errors %}
+                                <div class="text-danger small">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        {{ form.deal_type.label(class="form-label") }}
+                        {{ form.deal_type(class="form-select") }}
+                        {% for error in form.deal_type.errors %}
+                            <div class="text-danger small">{{ error }}</div>
+                        {% endfor %}
+                        <small class="form-text text-muted">
+                            Single Item: One product per deal. Multi-Item: Multiple products in one transaction.
+                        </small>
+                    </div>
+                    
+                    {{ form.submit(class="btn btn-primary") }}
+                    <a href="{{ url_for('main.user_dashboard') }}" class="btn btn-secondary">Cancel</a>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-info-circle"></i> Deal Guidelines</h5>
+            </div>
+            <div class="card-body">
+                <h6>Single Item Deal:</h6>
+                <ul class="small">
+                    <li>One product per transaction</li>
+                    <li>Simple and quick setup</li>
+                    <li>Ideal for individual sales</li>
+                </ul>
+                
+                <h6>Multi-Item Deal:</h6>
+                <ul class="small">
+                    <li>Multiple products in one deal</li>
+                    <li>Bulk transactions</li>
+                    <li>Add products after deal creation</li>
+                </ul>
+                
+                <div class="alert alert-warning mt-3" role="alert">
+                    <i class="fas fa-exclamation-triangle"></i> <strong>Note:</strong> Both buyer and seller must exist in the system.
+                </div>
+            </div>
+        </div>
+        
+        <!-- Your Available Products -->
+        {% if user_products %}
+        <div class="card mt-3">
+            <div class="card-header">
+                <h6><i class="fas fa-box"></i> Your Available Products</h6>
+            </div>
+            <div class="card-body">
+                <div class="list-group list-group-flush">
+                    {% for product in user_products %}
+                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                        <div>
+                            <strong>{{ product.name }}</strong><br>
+                            <small class="text-muted">{{ product.serial_number }}</small>
+                        </div>
+                        <span class="badge bg-success rounded-pill">Available</span>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
