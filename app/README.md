@@ -39,3 +39,18 @@ Requirements: PHP 8.0+, MySQL 5.7+/8.0, Apache with mod_php. Uses Bootstrap 5.
 ## Notes
 - Modify `BASE_URL` auto-detection in `inc/config.php` if deploying under a subdirectory.
 - Use `admin/products` to change product statuses with rule restrictions.
+
+## Docker (local dev)
+- Requirements: Docker Desktop or docker + docker-compose
+- Start:
+  - `cd app`
+  - `docker-compose up --build`
+  - App: `http://localhost:8080`  | phpMyAdmin: `http://localhost:8081` (server: db, user: sprs, pass: sprs_pass)
+- The database initializes from `schema.sql` automatically.
+- Environment is hot-mounted. Edit files locally; Apache reloads them.
+
+## Hostinger subdirectory (e.g., public_html/sprs)
+- Upload the entire `app/` folder into `public_html/sprs`.
+- Ensure `.htaccess` in `sprs/` routes to `public/` (we provide it at `app/.htaccess`).
+- Visiting `https://your-domain/sprs/` will load `sprs/public/index.php`.
+- If you place files directly in `public_html/`, you may omit the root `.htaccess` and use only `public/.htaccess`.
