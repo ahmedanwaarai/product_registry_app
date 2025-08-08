@@ -1,0 +1,12 @@
+# Route all requests to public/ if accessed from project root
+RewriteEngine On
+
+# If the requested file or directory exists in public, serve it
+RewriteCond %{REQUEST_URI} !^/public/
+RewriteCond %{DOCUMENT_ROOT}/public%{REQUEST_URI} -f [OR]
+RewriteCond %{DOCUMENT_ROOT}/public%{REQUEST_URI} -d
+RewriteRule ^(.*)$ public/$1 [L]
+
+# Otherwise, route to public/index.php
+RewriteCond %{REQUEST_URI} !^/public/
+RewriteRule ^ public/index.php [L]
